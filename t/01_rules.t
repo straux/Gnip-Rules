@@ -139,7 +139,7 @@ my @bulk = ();
 
 $cb = sub {
     push @bulk, decode_json shift->{env}->{'spore.payload'};
-    ( 201, [ 'Content-Type' => 'text/plain' ], encode_json({ ok => 1 }) );
+    ( 201, [ 'Content-Type' => 'text/plain' ], '{ "ok":"1"}' );
 };
 
 $client->set_rules( $rules );
