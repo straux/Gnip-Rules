@@ -42,7 +42,7 @@ sub get_rules {
     my ( $self, %opt ) = @_;
 
     my $rules = $self->gnip->get_rules( collector_id => $self->collector_id, format => 'json' )->body;
-    $self->filter_rules( $rules, %opt ) if( defined $opt{filter} );
+    $rules = $self->filter_rules( $rules, %opt ) if( defined $opt{filter} );
     $rules;
 }
 
@@ -129,16 +129,16 @@ sub update_rules {
 
 sub filter_rules {
     my ( $self, $rules, %opt ) = @_;
+    
     my $filter = delete $opt{filter};
     return $rules unless $filter;
-
+    
     if( ref $filter eq 'ARRAY' ) {
         my %f;
         @f{ @$filter } = ( 1 ) x scalar @$filter;
         $filter = \%f;
     }
-
-    { rules => [grep {defined $filter->{defined $_->{tag} ? $_->{tag} :  '' }} @{$rules->{rules}}] }; 
+    { rules => [grep {defined $_->{tag} && defined $filter->{$_->{tag}}} @{$rules->{rules}}] }; 
 }
 
 sub _same_rules {
