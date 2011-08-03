@@ -18,7 +18,7 @@ has 'gnip' => (
         my $spore = Net::HTTP::Spore->new_from_spec( $self->spore_spec,
             base_url => $self->base_url, );
         $spore->enable('Format::JSON');
-        $spore->enable('Auth::Basic', 
+        $spore->enable('Auth::Basic',
             username => $self->user, password => $self->password );
         $spore;
     },
@@ -64,7 +64,7 @@ sub _bulk_rules {
     my $size = scalar @$rules;
     while( ($i * $self->bulk_size) < $size ) {
         my $next = ($i+1) * $self->bulk_size;
-        $next = $size if $size < $next; 
+        $next = $size if $size < $next;
         $self->gnip->set_rules(
             %params,
             payload => {
@@ -117,16 +117,16 @@ sub update_rules {
 
 sub filter_rules {
     my ( $self, $rules, %opt ) = @_;
-    
+
     my $filter = delete $opt{filter};
     return $rules unless $filter;
-    
+
     if( ref $filter eq 'ARRAY' ) {
         my %f;
         @f{ @$filter } = ( 1 ) x scalar @$filter;
         $filter = \%f;
     }
-    { rules => [grep {defined $_->{tag} && defined $filter->{$_->{tag}}} @{$rules->{rules}}] }; 
+    { rules => [grep {defined $_->{tag} && defined $filter->{$_->{tag}}} @{$rules->{rules}}] };
 }
 
 sub _same_rules {
@@ -142,4 +142,111 @@ sub _same_rules {
 no Moose;
 
 1;
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+Gnip::Rules - REST client managing rules for Gnip API
+
+=head1 SYNOPSIS
+
+    use Gnip::Rules;
+    use Try::Tiny;
+
+    my $client = Gnip::Rules->new(
+        user => 'user',
+        password => 'password',
+        base_url => 'https://gnipboxname.gnip.com/',
+        spore_spec => 'spore-spec/gnip.json',
+        collector_id => 1,
+    );
+
+    # get rules
+    try {
+        my $rules = $client->get_rules;
+    } catch {
+        die $_->raw_body."\n";
+    };
+
+    # set rules
+    try {
+        my $rules = $client->set_rules({
+            rules => [
+                { value => "rule" },
+                { value => "rule_with_tag", tag => "tag" },
+            ]
+        });
+    } catch {
+        die $_->raw_body."\n";
+    };
+
+    # delete rules
+    try {
+        my $rules = $client->delete_rules({
+            rules => [
+                { value => "rule" },
+                { value => "rule_with_tag", tag => "tag" },
+            ]
+        });
+    } catch {
+        die $_->raw_body."\n";
+    };
+
+=head1 DESCRIPTION
+
+Gnip::Rules is an REST client managing rules for Gnip API,
+available at L<http://docs.gnip.com/w/page/23733233/Rules%20Methods%20Documentation>
+
+=head1 METHODS
+
+=head2 my $client = Gnip::Rules->new( %args );
+
+=over 4
+
+=item B<user>, B<password>
+
+Credentials for authentification.
+
+=item B<base_url>
+
+Base URL for the API, including your B<gnipboxname>.
+
+=item B<spore_spec>
+
+Path to L<Net::HTTP::Spore> specification file (see B<spore-spec/gnip.json> in the package).
+
+=item B<collector_id>
+
+Id of the collector to update.
+
+=back
+
+=head2 get_rules( %opt )
+
+=head2 set_rules( \%rules )
+
+=head2 delete_rules( \%rules )
+
+=head2 update_rules( \%rules, %opt )
+
+=head1 NOTES
+
+The API uses the HTTPS protocol. For this, you need to install the L<Net::SSLeay> module.
+
+=head1 AUTHOR
+
+Stéphane Raux E<lt>stephane.raux@linkfluence.netE<gt>
+
+=head1 LICENSE
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 SEE ALSO
+
+L<AnyEvent::Gnip::Stream> L<Net::HTTP::Spore>
+
+=cut
 
