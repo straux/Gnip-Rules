@@ -12,15 +12,11 @@ use Gnip::Rules;
 my $client;
 lives_ok( sub {
     $client = Gnip::Rules->new(
-        context => {
-            gnip => {
-                collector_id => 1,
-                user => 'foo',
-                password => 'bar',
-                base_url => 'http://localhost/',
-                spore_spec => 't/spore-spec/gnip.json',
-            },
-        }, 
+        user => 'foo',
+        password => 'bar',
+        base_url => 'http://localhost/',
+        spore_spec => 'spore-spec/gnip.json',
+        collector_id => 1,
         bulk_size => 10,
     );
 }, "Instanciate the client" );

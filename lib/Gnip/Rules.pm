@@ -2,13 +2,12 @@ package Gnip::Rules;
 
 use Moose;
 use Net::HTTP::Spore;
-use Try::Tiny;
 
-has 'context' => (
-    isa => 'HashRef',
-    is  => 'rw',
-    required => 1,
-);
+has user         => ( isa => 'Str', is => 'ro', required => 1 );
+has password     => ( isa => 'Str', is => 'ro', required => 1 );
+has spore_spec   => ( isa => 'Str', is => 'ro', required => 1 );
+has base_url     => ( isa => 'Str', is => 'ro', required => 1 );
+has collector_id => ( isa => 'Str', is => 'rw', required => 1 );
 
 has 'gnip' => (
     isa => 'Object',
@@ -16,24 +15,13 @@ has 'gnip' => (
     lazy => 1,
     default => sub {
         my $self = shift;
-        my $gnip = $self->context->{gnip};
-        my $spore = Net::HTTP::Spore->new_from_spec( $gnip->{spore_spec}, base_url => $gnip->{base_url}, );
+        my $spore = Net::HTTP::Spore->new_from_spec( $self->spore_spec,
+            base_url => $self->base_url, );
         $spore->enable('Format::JSON');
-        $spore->enable('Auth::Basic', username => $gnip->{user}, password => $gnip->{password} );
+        $spore->enable('Auth::Basic', 
+            username => $self->user, password => $self->password );
         $spore;
     },
-);
-
-has 'collector_id' => (
-    isa => 'Str',
-    is => 'rw',
-    lazy => 1,
-    default => sub {
-        my $context = shift->context->{gnip};
-        die "collector_id must be defined\n"
-            unless( defined $context && defined $context->{collector_id} );
-        $context->{collector_id};
-    }
 );
 
 has bulk_size => ( isa => 'Int', is => 'ro', default => '5000' );
