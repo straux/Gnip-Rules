@@ -16,14 +16,15 @@ lives_ok( sub {
         password => 'bar',
         base_url => 'http://localhost/',
         spore_spec => 'spore-spec/gnip.json',
-        collector_id => 1,
+        account => 'account',
+        publisher => 'twitter',
         bulk_size => 10,
     );
 }, "Instanciate the client" );
 
 my $cb;
 my $mock_server    = {
-    '/data_collectors/1/rules.json' => sub {
+    '/accounts/account/publishers/twitter/streams/track/prod/rules.json' => sub {
         my $req = shift;
         $req->new_response( $cb->( $req ) );
     },
@@ -68,8 +69,8 @@ my @tests = (
 );
 
 foreach my $test ( @tests ) {
-    is( Gnip::Rules::_same_rules( $test->[0], $test->[1] ), $test->[2], $test->[3] );   
-} 
+    is( Gnip::Rules::_same_rules( $test->[0], $test->[1] ), $test->[2], $test->[3] );
+}
 
 # update rules
 

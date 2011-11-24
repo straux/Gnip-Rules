@@ -7,7 +7,8 @@ has user         => ( isa => 'Str', is => 'ro', required => 1 );
 has password     => ( isa => 'Str', is => 'ro', required => 1 );
 has spore_spec   => ( isa => 'Str', is => 'ro', required => 1 );
 has base_url     => ( isa => 'Str', is => 'ro', required => 1 );
-has collector_id => ( isa => 'Str', is => 'rw', required => 1 );
+has account      => ( isa => 'Str', is => 'ro', required => 1 );
+has publisher    => ( isa => 'Str', is => 'ro', required => 1 );
 
 has 'gnip' => (
     isa => 'Object',
@@ -29,7 +30,11 @@ has bulk_size => ( isa => 'Int', is => 'ro', default => '5000' );
 sub get_rules {
     my ( $self, %opt ) = @_;
 
-    my $rules = $self->gnip->get_rules( collector_id => $self->collector_id, format => 'json' )->body;
+    my $rules = $self->gnip->get_rules(
+        account => $self->account,
+        publisher => $self->publisher,
+        format => 'json',
+    )->body;
     $rules = $self->filter_rules( $rules, %opt ) if( defined $opt{filter} );
     $rules;
 }
@@ -38,7 +43,8 @@ sub set_rules {
     my ( $self, $rules, ) = @_;
     die "rules must be an HASH ref\n" unless ref $rules eq 'HASH';
     $self->_bulk_rules(
-        collector_id => $self->collector_id,
+        account => $self->account,
+        publisher => $self->publisher,
         format => 'json',
         payload => $rules,
     );
@@ -49,7 +55,8 @@ sub delete_rules {
     my ( $self, $rules, ) = @_;
     die "rules must be an HASH ref\n" unless ref $rules eq 'HASH';
     $self->_bulk_rules(
-        collector_id => $self->collector_id,
+        account => $self->account,
+        publisher => $self->publisher,
         format => 'json',
         _method => 'delete',
         payload => $rules,
@@ -158,9 +165,10 @@ Gnip::Rules - REST client managing rules for Gnip API
     my $client = Gnip::Rules->new(
         user => 'user',
         password => 'password',
-        base_url => 'https://gnipboxname.gnip.com/',
+        base_url => 'base_url',
         spore_spec => 'spore-spec/gnip.json',
-        collector_id => 1,
+        account => 'Account',
+        publisher => 'twitter',
     );
 
     # get rules
@@ -217,9 +225,9 @@ Base URL for the API, including your B<gnipboxname>.
 
 Path to L<Net::HTTP::Spore> specification file (see B<spore-spec/gnip.json> in the package).
 
-=item B<collector_id>
+=item B<account> B<publisher>
 
-Id of the collector to update.
+Gnip acccount and publisher.
 
 =back
 
