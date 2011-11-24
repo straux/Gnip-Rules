@@ -1,3 +1,4 @@
+
 =encoding utf-8
 
 =head1 NAME
@@ -12,9 +13,10 @@ Gnip::Rules - REST client managing rules for Gnip API
     my $client = Gnip::Rules->new(
         user => 'user',
         password => 'password',
-        base_url => 'https://gnipboxname.gnip.com/',
+        base_url => 'base_url',
         spore_spec => 'spore-spec/gnip.json',
-        collector_id => 1,
+        account => 'Account',
+        publisher => 'twitter',
     );
 
     # get rules
@@ -71,9 +73,9 @@ Base URL for the API, including your B<gnipboxname>.
 
 Path to L<Net::HTTP::Spore> specification file (see B<spore-spec/gnip.json> in the package).
 
-=item B<collector_id>
+=item B<account> B<publisher>
 
-Id of the collector to update.
+Gnip acccount and publisher.
 
 =back
 
@@ -103,6 +105,5 @@ it under the same terms as Perl itself.
 L<AnyEvent::Gnip::Stream> L<Net::HTTP::Spore>
 
 =cut
-
 
 
